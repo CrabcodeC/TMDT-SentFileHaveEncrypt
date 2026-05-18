@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Send File</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Gửi tập tin bảo mật</h1>
+
+      <form id="sendForm">
+        <input type="file" id="file" required />
+
+        <select>
+          <option>Chọn người nhận</option>
+          <option>Minh Khang</option>
+          <option>Minh Phúc</option>
+        </select>
+
+        <div class="checkbox-group">
+          <label>
+            <input type="checkbox" checked />
+            Chữ ký điện tử
+          </label>
+
+          <label>
+            <input type="checkbox" />
+            Phong bì số
+          </label>
+        </div>
+
+        <button type="submit">SEND</button>
+      </form>
+
+      <div id="status"></div>
+
+      <a class="back" href="index.html">Back Home</a>
+    </div>
+
+    <script src="js/app.js"></script>
+  </body>
+</html>
