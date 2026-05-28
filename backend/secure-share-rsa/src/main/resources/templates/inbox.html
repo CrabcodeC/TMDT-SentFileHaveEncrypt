@@ -1,36 +1,56 @@
 <!doctype html>
-<html lang="en">
+<html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Inbox</title>
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
     <div class="container">
-      <h1>Inbox</h1>
+      <h1>📥 Hộp Thư Đến</h1>
 
-      <table>
-        <tr>
-          <th>Người nhận</th>
-          <th>File</th>
-          <th>Status</th>
-        </tr>
+      <div style="margin-bottom:16px">
+        <label>Chọn người dùng: </label>
+        <select id="usernameSelect" onchange="loadInbox()">
+          <option value="minhkhang">Minh Khang</option>
+          <option value="minhphuc">Minh Phúc</option>
+          <option value="trunghoa">Trung Hòa</option>
+          <option value="thayquang">Thầy Quang</option>
+        </select>
+        <button onclick="loadInbox()" style="margin-left:8px">🔄 Tải lại</button>
+      </div>
 
-        <tr>
-          <td>Minh Phúc</td>
-          <td>datasex.txt</td>
-          <td></td>
-        </tr>
+      <div id="fileList">Đang tải...</div>
 
-        <tr>
-          <td>Minh Khang</td>
-          <td>datasexhd.txt</td>
-          <td>Chữ ký số</td>
-        </tr>
-      </table>
-
-      <a class="back" href="index.html">Back Home</a>
+      <a href="/" class="back">← Back Home</a>
     </div>
+
+    <script>
+      async function loadInbox() {
+        const username = document.getElementById("usernameSelect").value;
+        const div = document.getElementById("fileList");
+        div.innerHTML = "⏳ Đang tải...";
+        try {
+          const res = await fetch("/api/inbox?username=" + username);
+          const files = await res.json();
+          if (files.length === 0) {
+            div.innerHTML = "<p>📭 Không có file nào trong inbox.</p>";
+          } else {
+            div.innerHTML = files.map(f => `
+              <div style="background:#1a1a2e; padding:12px; margin:8px 0; border-radius:8px; border:1px solid #333">
+                <p>📄 <b>${f.fileName}</b></p>
+                <p>👤 Người gửi: ${f.sender} | ⏱️ ${f.time}</p>
+                <a href="/download?path=${encodeURIComponent(f.path)}&name=${encodeURIComponent(f.fileName)}"
+                   style="color:#00aaff">⬇️ Tải xuống (đã mã hóa)</a>
+              </div>
+            `).join("");
+          }
+        } catch(e) {
+          div.innerHTML = "<p style='color:red'>❌ Lỗi: " + e.message + "</p>";
+        }
+      }
+      loadInbox();
+    </script>
   </body>
 </html>

@@ -12,7 +12,7 @@ body {
 
 .container {
   width: 90%;
-  max-width: 600px;
+  max-width: 700px;
   margin: 60px auto;
   background: #1e293b;
   padding: 30px;
@@ -20,76 +20,70 @@ body {
 }
 
 h1 {
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   color: #00ffd5;
+  text-align: center;
 }
 
-p {
-  margin-bottom: 20px;
+h2 {
+  margin-bottom: 30px;
+  color: #94a3b8;
+  text-align: center;
+  font-size: 1.1em;
 }
 
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
 }
 
-.menu a,
-button,
-.back {
+.menu a {
   background: #00ffd5;
   color: black;
-  padding: 12px;
+  padding: 14px;
   text-decoration: none;
   text-align: center;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+  border-radius: 6px;
   font-weight: bold;
+  transition: 0.3s;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-input,
-select {
-  padding: 10px;
-  border-radius: 5px;
-  border: none;
-}
-
-.checkbox-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-#status {
-  margin-top: 20px;
-  color: #00ffd5;
+.menu a:hover {
+  background: #00ccaa;
+  transform: translateY(-2px);
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 20px;
 }
 
 table th,
 table td {
-  border: 1px solid white;
-  padding: 10px;
-  text-align: center;
+  border: 1px solid #475569;
+  padding: 12px;
+  text-align: left;
 }
 
-.verify {
-  padding: 15px;
-  margin-bottom: 15px;
-  border-radius: 5px;
+table th {
+  background: #334155;
+  color: #00ffd5;
 }
 
-.success {
-  background: green;
+button {
+  padding: 8px 16px;
+  background: #00ffd5;
+  color: black;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.back {
+  display: inline-block;
+  margin-top: 25px;
+  color: #00ffd5;
+  text-decoration: none;
 }

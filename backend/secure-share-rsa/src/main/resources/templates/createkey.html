@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tạo Cặp Khóa RSA</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔑 Tạo Cặp Khóa RSA-2048</h1>
+
+      <button onclick="generateKey()" style="margin-bottom:20px">⚡ Tạo Cặp Khóa Mới</button>
+
+      <div id="keyResult"></div>
+
+      <a href="/" class="back">← Back Home</a>
+    </div>
+
+    <script>
+      async function generateKey() {
+        document.getElementById("keyResult").innerHTML = "⏳ Đang tạo khóa RSA-2048...";
+        try {
+          const res = await fetch("/generate-key");
+          const data = await res.json();
+          document.getElementById("keyResult").innerHTML = `
+            <div style="background:#0a0a1a; padding:16px; border-radius:8px; border:1px solid #333; margin-top:16px">
+              <p><b>Public Key (Base64):</b></p>
+              <textarea readonly style="width:100%; height:80px; background:#111; color:#0f0; font-size:11px; padding:8px">${data.publicKey}</textarea>
+              <p style="margin-top:12px"><b>Private Key (Base64):</b></p>
+              <textarea readonly style="width:100%; height:80px; background:#111; color:#f90; font-size:11px; padding:8px">${data.privateKey}</textarea>
+              <p style="color:#aaa; font-size:12px; margin-top:8px">⚠️ Lưu Private Key vào nơi an toàn, không chia sẻ với ai!</p>
+            </div>
+          `;
+        } catch(e) {
+          document.getElementById("keyResult").innerHTML = "<p style='color:red'>❌ Lỗi: " + e.message + "</p>";
+        }
+      }
+    </script>
+  </body>
+</html>
