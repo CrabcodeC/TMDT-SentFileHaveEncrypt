@@ -1,0 +1,16 @@
+1. home: da hoan thanh
+2.dang ky: da hoan thanh
+3.dang nhap: da hoan thanh
+
+4.chi tiet san pham : hai
+5.goi y mon an : hai
+2.list san pham : hai
+7.don hang :hai
+8.quan ly cua admin: 4 trang :hai
+9.them san pham: khang
+10.gio hang : khang
+11.lich su: khang
+12.chi tiet mon an  : khang
+13.cong thuc mon an : khang
+14.quan ly nguoi dung: 3 trang : hoa
+15.footer info web : hoa

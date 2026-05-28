@@ -1,18 +1,191 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Xác Thực Chữ Ký</title>
-  <link rel="stylesheet" href="/style.css">
+  <title>Xác Thực & Giải Mã File</title>
+  <link rel="stylesheet" href="/style.css"/>
+  <style>
+    .step { background:#0f172a; border:1px solid #334155; border-radius:8px; padding:16px; margin:12px 0; }
+    .step-title { color:#00ffd5; font-weight:bold; margin-bottom:10px; }
+    label { display:block; color:#94a3b8; margin-bottom:4px; font-size:14px; }
+    select, input[type=file] {
+      width:100%; padding:10px; background:#0f172a; color:white;
+      border:1px solid #334155; border-radius:6px; margin-bottom:4px; font-size:14px;
+    }
+    textarea {
+      width:100%; padding:10px; background:#0f172a; color:#94a3b8;
+      border:1px solid #334155; border-radius:6px; font-size:11px;
+      font-family:monospace; resize:vertical;
+    }
+    .btn-main { width:100%; padding:14px; background:#00ffd5; color:#0f172a;
+                font-weight:bold; font-size:16px; border:none; border-radius:8px; cursor:pointer; margin-top:8px; }
+    .btn-main:hover { background:#00ccaa; }
+    .note { color:#64748b; font-size:12px; margin-top:4px; }
+
+    /* Kết quả */
+    #resultBox { display:none; margin-top:20px; border-radius:10px; padding:20px; }
+    #resultBox.ok  { background:#052e16; border:2px solid #16a34a; }
+    #resultBox.err { background:#2d0a0a; border:2px solid #dc2626; }
+    .check-row { display:flex; align-items:center; gap:10px; padding:8px 0;
+                 border-bottom:1px solid #1e293b; font-size:15px; }
+    .check-row:last-child { border-bottom:none; }
+    .icon-ok  { color:#4ade80; font-size:20px; }
+    .icon-err { color:#f87171; font-size:20px; }
+    .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; }
+    .info-item { background:#0f172a; padding:10px; border-radius:6px; }
+    .info-item .label { color:#64748b; font-size:11px; margin-bottom:2px; }
+    .info-item .value { color:#e2e8f0; font-size:13px; word-break:break-all; }
+    .hash-box { background:#0f172a; padding:10px; border-radius:6px; margin-top:10px;
+                font-family:monospace; font-size:11px; color:#34d399; word-break:break-all; }
+    #loading { display:none; text-align:center; padding:20px; color:#94a3b8; }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🔍 Xác Thực Chữ Ký Số</h1>
-    <div class="verify success">✓ Signature Valid</div>
-    <div class="verify success">✓ Integrity Verified</div>
-    <div class="verify success">✓ Authenticated Sender</div>
-    <a class="back" href="/">← Back Home</a>
+<div class="container">
+  <h1>🔍 Xác Thực & Giải Mã File</h1>
+
+  <!-- Form nhập liệu -->
+  <div class="step">
+    <div class="step-title">① Thông tin người gửi & nhận</div>
+    <label>Người gửi (để xác thực chữ ký):</label>
+    <select id="sender">
+      <option value="minhkhang">Minh Khang</option>
+      <option value="minhphuc">Minh Phúc</option>
+      <option value="trunghoa">Trung Hòa</option>
+      <option value="thayquang">Thầy Quang</option>
+    </select>
+    <label style="margin-top:10px">Người nhận (để giải mã):</label>
+    <select id="recipient">
+      <option value="minhphuc">Minh Phúc</option>
+      <option value="minhkhang">Minh Khang</option>
+      <option value="trunghoa">Trung Hòa</option>
+      <option value="thayquang">Thầy Quang</option>
+    </select>
   </div>
+
+  <div class="step">
+    <div class="step-title">② Chọn file đã mã hóa (enc_...)</div>
+    <input type="file" id="encFile"/>
+    <p class="note">Chọn file từ thư mục <code>encrypted/[username]/</code> — tên bắt đầu bằng <code>enc_</code></p>
+  </div>
+
+  <div class="step">
+    <div class="step-title">③ Dán thông tin từ lúc gửi</div>
+    <label>Encrypted Session Key (Base64):</label>
+    <textarea id="sessionKey" rows="3" placeholder="Dán encryptedSessionKey từ kết quả lúc gửi file..."></textarea>
+    <label style="margin-top:10px">Chữ ký số - Signature (Base64):</label>
+    <textarea id="signature" rows="3" placeholder="Dán signature từ kết quả lúc gửi file..."></textarea>
+  </div>
+
+  <button class="btn-main" onclick="doVerify()">🔐 Xác Thực & Giải Mã</button>
+
+  <!-- Loading -->
+  <div id="loading">⏳ Đang giải mã và xác thực...</div>
+
+  <!-- Kết quả -->
+  <div id="resultBox">
+    <div id="checkList"></div>
+    <div class="info-grid" id="infoGrid"></div>
+    <div id="hashRow"></div>
+    <p id="resultMsg" style="margin-top:14px; font-size:15px; font-weight:bold;"></p>
+  </div>
+
+  <a href="/" class="back">← Back Home</a>
+</div>
+
+<script>
+async function doVerify() {
+  const sender    = document.getElementById('sender').value;
+  const recipient = document.getElementById('recipient').value;
+  const fileEl    = document.getElementById('encFile');
+  const sessionKey = document.getElementById('sessionKey').value.trim();
+  const signature  = document.getElementById('signature').value.trim();
+
+  if (!fileEl.files || !fileEl.files[0]) { alert('Vui lòng chọn file mã hóa!'); return; }
+  if (!sessionKey) { alert('Vui lòng dán Encrypted Session Key!'); return; }
+  if (!signature)  { alert('Vui lòng dán Signature!'); return; }
+
+  const resultBox = document.getElementById('resultBox');
+  const loading   = document.getElementById('loading');
+  resultBox.style.display = 'none';
+  loading.style.display = 'block';
+
+  const formData = new FormData();
+  formData.append('file', fileEl.files[0]);
+  formData.append('encryptedSessionKey', sessionKey);
+  formData.append('signature', signature);
+  formData.append('sender', sender);
+  formData.append('recipient', recipient);
+
+  try {
+    const res  = await fetch('/api/verify', { method: 'POST', body: formData });
+    const data = await res.json();
+    loading.style.display = 'none';
+
+    if (!res.ok || data.error) {
+      showError(data.error || 'Lỗi server');
+      return;
+    }
+
+    const ok = data.signatureValid;
+    resultBox.className = ok ? 'ok' : 'err';
+
+    // Danh sách check
+    document.getElementById('checkList').innerHTML = `
+      <div class="check-row">
+        <span class="${ok?'icon-ok':'icon-err'}">${ok?'✓':'✗'}</span>
+        <span>Giải mã Session Key bằng Private Key người nhận</span>
+      </div>
+      <div class="check-row">
+        <span class="${ok?'icon-ok':'icon-err'}">${ok?'✓':'✗'}</span>
+        <span>Giải mã file bằng AES-256 Session Key</span>
+      </div>
+      <div class="check-row">
+        <span class="${ok?'icon-ok':'icon-err'}">${ok?'✓':'✗'}</span>
+        <span>Xác thực chữ ký số (Signature) bằng Public Key người gửi</span>
+      </div>
+      <div class="check-row">
+        <span class="${ok?'icon-ok':'icon-err'}">${ok?'✓':'✗'}</span>
+        <span>Kiểm tra toàn vẹn file (Hash SHA-256 khớp)</span>
+      </div>
+    `;
+
+    // Thông tin chi tiết
+    document.getElementById('infoGrid').innerHTML = `
+      <div class="info-item"><div class="label">📤 Người gửi</div><div class="value">${data.sender}</div></div>
+      <div class="info-item"><div class="label">📥 Người nhận</div><div class="value">${data.recipient}</div></div>
+      <div class="info-item"><div class="label">📄 Tên file gốc</div><div class="value">${data.originalName}</div></div>
+      <div class="info-item"><div class="label">📦 Kích thước</div><div class="value">${data.fileSizeBytes} bytes</div></div>
+      <div class="info-item" style="grid-column:1/-1"><div class="label">💾 Đã lưu file giải mã tại</div><div class="value">${data.decryptedPath}</div></div>
+    `;
+
+    // Hash
+    document.getElementById('hashRow').innerHTML = `
+      <div class="label" style="color:#64748b; font-size:11px; margin-top:10px">SHA-256 Hash của file gốc:</div>
+      <div class="hash-box">${data.hashHex}</div>
+    `;
+
+    document.getElementById('resultMsg').innerHTML = data.message;
+    document.getElementById('resultMsg').style.color = ok ? '#4ade80' : '#f87171';
+
+    resultBox.style.display = 'block';
+
+  } catch(e) {
+    loading.style.display = 'none';
+    showError(e.message);
+  }
+}
+
+function showError(msg) {
+  const resultBox = document.getElementById('resultBox');
+  resultBox.className = 'err';
+  resultBox.style.display = 'block';
+  resultBox.innerHTML = `
+    <div class="check-row"><span class="icon-err">✗</span><span>${msg}</span></div>
+    <p style="color:#f87171; margin-top:10px; font-weight:bold;">❌ Xác thực thất bại</p>
+  `;
+}
+</script>
 </body>
 </html>
