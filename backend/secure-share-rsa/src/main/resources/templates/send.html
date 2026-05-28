@@ -1,44 +1,42 @@
 <!doctype html>
-<html lang="en">
+<html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Send File</title>
-    <link rel="stylesheet" href="css/style.css" />
+    <title>Gửi File Bảo Mật</title>
+    <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
     <div class="container">
-      <h1>Gửi tập tin bảo mật</h1>
+      <h1>Gửi Tập Tin Bảo Mật (Hybrid)</h1>
 
-      <form id="sendForm">
-        <input type="file" id="file" required />
-
-        <select>
-          <option>Chọn người nhận</option>
-          <option>Minh Khang</option>
-          <option>Minh Phúc</option>
+      <form id="sendForm" enctype="multipart/form-data">
+        <label>Người gửi:</label>
+        <select id="sender" name="sender">
+          <option value="trunghoa">Trung Hòa</option>
+          <option value="thayquang">Thầy Quang</option>
+          <option value="minhkhang">Minh Khang</option>
+          <option value="minhphuc">Minh Phúc</option>
         </select>
 
-        <div class="checkbox-group">
-          <label>
-            <input type="checkbox" checked />
-            Chữ ký điện tử
-          </label>
+        <label>Người nhận:</label>
+        <select id="recipient" name="recipient">
+          <option value="trunghoa">Trung Hòa</option>
+          <option value="thayquang">Thầy Quang</option>
+          <option value="minhkhang">Minh Khang</option>
+          <option value="minhphuc">Minh Phúc</option>
+        </select>
 
-          <label>
-            <input type="checkbox" />
-            Phong bì số
-          </label>
-        </div>
+        <label>Chọn File:</label>
+        <input type="file" id="file" name="file" required />
 
-        <button type="submit">SEND</button>
+        <button type="submit">GỬI FILE BẢO MẬT</button>
       </form>
 
       <div id="status"></div>
-
-      <a class="back" href="index.html">Back Home</a>
+      <a href="/" class="back">← Back Home</a>
     </div>
 
-    <script src="js/app.js"></script>
+    <script src="/send.js"></script>
   </body>
 </html>

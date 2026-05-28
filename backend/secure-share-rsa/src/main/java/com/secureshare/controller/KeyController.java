@@ -22,11 +22,8 @@ public class KeyController {
 
         Map<String, String> response = new HashMap<>();
 
-        response.put("publicKey",
-                rsaService.toBase64(pair.getPublic().getEncoded()));
-
-        response.put("privateKey",
-                rsaService.toBase64(pair.getPrivate().getEncoded()));
+        response.put("publicKey", rsaService.toBase64(pair.getPublic().getEncoded()));
+        response.put("privateKey", rsaService.toBase64(pair.getPrivate().getEncoded()));
 
         return response;
     }
